@@ -1,0 +1,12 @@
+<launch>
+
+    <node pkg="spatial" type="extractor" name="extractor" output="screen">
+        <param name="data_path" type="string" value="/home/sam/harbour2/data/"/>
+    </node>
+
+    <arg name="rviz" default="false" />
+    <group if="$(arg rviz)">
+        <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find spatial)/rviz_cfg/rosbag.rviz" />
+    </group>
+
+</launch>
