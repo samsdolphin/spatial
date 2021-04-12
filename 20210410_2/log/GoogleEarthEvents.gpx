@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx
+ version="1.1"
+ creator="Advanced Navigation Spatial Manager"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns="http://www.topografix.com/GPX/1/1"
+ xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+	<wpt lat="22.277438739712483" lon="114.13646672274595">
+		<ele>294.001</ele>
+		<time>2021-04-10T08:56:40.429Z</time>
+		<name>Event 2</name>
+		<course>181.460</course>
+		<speed>0.014</speed>
+		<fix>dgps</fix>
+		<heading>278.081</heading>
+	</wpt>
+	<wpt lat="22.277438745252095" lon="114.13646672580586">
+		<ele>294.001</ele>
+		<time>2021-04-10T08:56:40.645Z</time>
+		<name>Event 2</name>
+		<course>204.015</course>
+		<speed>0.033</speed>
+		<fix>dgps</fix>
+		<heading>276.583</heading>
+	</wpt>
+	<wpt lat="22.27743874662713" lon="114.13646668697396">
+		<ele>294.002</ele>
+		<time>2021-04-10T08:56:40.889Z</time>
+		<name>Event 2</name>
+		<course>218.174</course>
+		<speed>0.041</speed>
+		<fix>dgps</fix>
+		<heading>273.517</heading>
+	</wpt>
+	<wpt lat="22.277438801783294" lon="114.13646666863247">
+		<ele>293.999</ele>
+		<time>2021-04-10T08:56:41.110Z</time>
+		<name>Event 2</name>
+		<course>305.791</course>
+		<speed>0.013</speed>
+		<fix>dgps</fix>
+		<heading>270.702</heading>
+	</wpt>
+	<wpt lat="22.277438801505422" lon="114.13646687238447">
+		<ele>293.958</ele>
+		<time>2021-04-10T08:56:41.894Z</time>
+		<name>Event 2</name>
+		<course>43.499</course>
+		<speed>0.034</speed>
+		<fix>dgps</fix>
+		<heading>275.325</heading>
+	</wpt>
+	<wpt lat="22.27743891612527" lon="114.13646684956942">
+		<ele>293.941</ele>
+		<time>2021-04-10T08:56:43.415Z</time>
+		<name>Event 2</name>
+		<course>326.030</course>
+		<speed>0.003</speed>
+		<fix>dgps</fix>
+		<heading>277.286</heading>
+	</wpt>
+	<wpt lat="22.27744033492944" lon="114.13646661178667">
+		<ele>294.193</ele>
+		<time>2021-04-10T08:59:25.660Z</time>
+		<name>Event 2</name>
+		<course>286.255</course>
+		<speed>0.031</speed>
+		<fix>dgps</fix>
+		<heading>275.484</heading>
+	</wpt>
+</gpx>

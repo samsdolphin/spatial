@@ -1,5 +1,5 @@
-#ifndef __MYPCL_HPP__
-#define __MYPCL_HPP__
+#ifndef MYPCL_HPP
+#define MYPCL_HPP
 
 #include <iostream>
 #include <fstream>
@@ -9,39 +9,25 @@
 #include <pcl/point_types.h>
 #include <eigen3/Eigen/Dense>
 
-typedef pcl::PointXYZRGB PointType;
+typedef std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d> > vector_vec3d;
+typedef std::vector<Eigen::Quaterniond, Eigen::aligned_allocator<Eigen::Quaterniond> > vector_quad;
+typedef pcl::PointXYZRGBNormal PointType;
 
 namespace mypcl
 {
+    class mypoint
+    {
+    public:
+        float _x, _y, _z;
+        mypoint(float x = 0.0, float y = 0.0 , float z = 0.0) : _x(x), _y(y), _z(z){}
+    };
+
     struct pose
     {
         pose(Eigen::Quaterniond _q, Eigen::Vector3d _t) : q(_q), t(_t){}
         Eigen::Quaterniond q;
         Eigen::Vector3d t;
     };
-
-    std::vector<Eigen::Vector3d> pointcloud2eigen(pcl::PointCloud<PointType> pc)
-    {
-        std::vector<Eigen::Vector3d> pc_vec;
-        for (size_t i = 0; i < pc.points.size(); i++)
-            pc_vec.push_back(Eigen::Vector3d(pc.points[i].x,
-                                             pc.points[i].y,
-                                             pc.points[i].z));
-        return pc_vec;
-    }
-
-    pcl::PointCloud<PointType> eigen2pointcloud(std::vector<Eigen::Vector3d> vec)
-    {
-        pcl::PointCloud<PointType> pc;
-        pc.points.resize(vec.size());
-        for (uint i = 0; i < vec.size(); i++)
-        {
-            pc.points[i].x = vec[i](0);
-            pc.points[i].y = vec[i](1);
-            pc.points[i].z = vec[i](2);
-        }
-        return pc;
-    }
 
     pcl::PointCloud<PointType> read_colorpoint(std::string path)
     {
@@ -96,11 +82,26 @@ namespace mypcl
         return pc;
     }
 
-    pcl::PointCloud<PointType> read_pointcloud(
-        std::vector<pcl::PointCloud<PointType>::Ptr> vec,
-        int pn)
+    pcl::PointCloud<PointType> read_pointdat(std::string filename)
     {
-        return *(vec[pn]);
+        mypoint p;
+        std::ifstream inFile(filename, std::ios::in | std::ios::binary);
+        pcl::PointCloud<PointType> pc;
+        pc.points.resize(5e6);
+        size_t cnt = 0;
+        while(inFile.read((char *)&p, sizeof(p)))
+        {
+            if (p._x > 0)
+            {
+                pc.points[cnt].x = p._x;
+                pc.points[cnt].y = p._y;
+                pc.points[cnt].z = p._z;
+                cnt++;
+            }
+        }
+        inFile.close();
+        pc.points.resize(cnt);
+        return pc;
     }
 
     std::vector<pose> read_pose(std::string path)
@@ -159,92 +160,6 @@ namespace mypcl
         return pc1;
     }
 
-    pcl::PointCloud<PointType>::Ptr append_cloud(pcl::PointCloud<PointType>::Ptr pc1,
-                                                 std::string path)
-    {
-        pcl::PointCloud<PointType> pc2 = read_pointcloud(path);
-        pc1 = append_cloud(pc1, pc2);
-        return pc1;
-    }
-
-    pcl::PointCloud<PointType> read_rest_pointcloud(std::vector<pose> pose_vec,
-                                                    int num, bool is_plane = 1)
-    {
-        std::string path = "/home/sam/catkin_ws/src/lidar_calib/still_clouds/downsample/";
-        pcl::PointCloud<PointType>::Ptr pc(new pcl::PointCloud<PointType>);
-        pc->points.resize(1e6);
-        bool is_init = false;
-        
-        for (size_t i = 0; i < pose_vec.size() - 1; i++)
-        {
-            Eigen::Vector3d t = pose_vec[i].t;
-            Eigen::Quaterniond q = pose_vec[i].q;
-            if (i != (size_t)num && !is_init)
-            {
-                if (is_plane)
-                    *pc = read_pointcloud(path + "plane" + std::to_string(i) + ".json");
-                else
-                    *pc = read_pointcloud(path + "edge" + std::to_string(i) + ".json");
-                transform_pointcloud(*pc, *pc, t, q);
-                is_init = true;
-            }
-            else if (i != (size_t)num && is_init)
-            {
-                pcl::PointCloud<PointType>::Ptr pc2(new pcl::PointCloud<PointType>);
-                if (is_plane)
-                    *pc2 = read_pointcloud(path + "plane" + std::to_string(i) + ".json");
-                else
-                    *pc2 = read_pointcloud(path + "edge" + std::to_string(i) + ".json");
-                transform_pointcloud(*pc2, *pc2, t, q);
-                pc = append_cloud(pc, *pc2);
-            }
-        }
-        return *pc;
-    }
-
-    pcl::PointCloud<PointType> read_rest_pointcloud(
-        std::vector<pcl::PointCloud<PointType>::Ptr> vec,
-        std::vector<pose> pose_vec,
-        int pn)
-    {
-        pcl::PointCloud<PointType>::Ptr pc(new pcl::PointCloud<PointType>);
-        pc->points.resize(1e6);
-        bool is_init = false;
-        
-        for (size_t i = 0; i < pose_vec.size() - 1; i++)
-        {
-            Eigen::Vector3d t = pose_vec[i].t;
-            Eigen::Quaterniond q = pose_vec[i].q;
-            if (i != (size_t)pn && !is_init)
-            {
-                *pc = read_pointcloud(vec, i);
-                transform_pointcloud(*pc, *pc, t, q);
-                is_init = true;
-            }
-            else if (i != (size_t)pn && is_init)
-            {
-                pcl::PointCloud<PointType>::Ptr pc2(new pcl::PointCloud<PointType>);
-                *pc2 = read_pointcloud(vec, i);
-                transform_pointcloud(*pc2, *pc2, t, q);
-                pc = append_cloud(pc, *pc2);
-            }
-        }
-        return *pc;
-    }
-
-    void transform(PointType const* const pi,
-                   PointType *const po,
-                   Eigen::Quaterniond q,
-                   Eigen::Vector3d t)
-    {
-        Eigen::Vector3d pt_cur(pi->x, pi->y, pi->z);
-        Eigen::Vector3d pt_to;
-        pt_to = q * pt_cur + t;
-        po->x = pt_to.x();
-        po->y = pt_to.y();
-        po->z = pt_to.z();
-    }
-
     double compute_inlier_ratio(std::vector<double> residuals, double ratio)
     {
         std::set<double> dis_vec;
@@ -252,23 +167,6 @@ namespace mypcl
             dis_vec.insert(fabs(residuals[3 * i + 0]) + fabs(residuals[3 * i + 1]) + fabs(residuals[3 * i + 2]));
 
         return *(std::next(dis_vec.begin(), (int)((ratio) * dis_vec.size())));
-    }
-
-    std::vector<pose> record_pose(std::vector<pose> pose_vec)
-    {
-        std::vector<pose> best_pose;
-        for (size_t i = 0; i < pose_vec.size(); i++)
-        {
-            Eigen::Quaterniond q(pose_vec[i].q.w(),
-                                 pose_vec[i].q.x(),
-                                 pose_vec[i].q.y(),
-                                 pose_vec[i].q.z());
-            Eigen::Vector3d t(pose_vec[i].t(0),
-                              pose_vec[i].t(1),
-                              pose_vec[i].t(2));
-            best_pose.push_back(pose(q, t));
-        }
-        return best_pose;
     }
 
     void write_pose(std::vector<pose> pose_vec, std::string path)
@@ -288,8 +186,12 @@ namespace mypcl
             Eigen::Quaterniond q(1, 0, 0, 0);
             t << q0.inverse()*(pose_vec[i].t-t0);
             q = q0.inverse()*pose_vec[i].q;
-            file << t(0) << " " << t(1) << " " << t(2) << " "
-                 << q.w() << " "<< q.x() << " "<< q.y() << " "<< q.z() << "\n";
+            if (i == pose_vec.size()-1)
+                file << t(0) << " " << t(1) << " " << t(2) << " "
+                    << q.w() << " "<< q.x() << " "<< q.y() << " "<< q.z();
+            else
+                file << t(0) << " " << t(1) << " " << t(2) << " "
+                    << q.w() << " "<< q.x() << " "<< q.y() << " "<< q.z() << "\n";
         }
         file.close();
     }
@@ -298,12 +200,16 @@ namespace mypcl
     {
         std::ofstream file;
         file.open(path + "ref.json", std::ofstream::trunc);
-        for (size_t i = 0; i < ref_vec.size() - 1; i++)
+        for (size_t i = 0; i < ref_vec.size(); i++)
         {
             Eigen::Quaterniond q = ref_vec[i].q;
             Eigen::Vector3d t = ref_vec[i].t;
-            file << t(0) << " " << t(1) << " " << t(2) << " "
-                 << q.w() << " "<< q.x() << " "<< q.y() << " "<< q.z() << "\n";
+            if (i == ref_vec.size()-1)
+                file << t(0) << " " << t(1) << " " << t(2) << " "
+                    << q.w() << " "<< q.x() << " "<< q.y() << " "<< q.z();
+            else
+                file << t(0) << " " << t(1) << " " << t(2) << " "
+                    << q.w() << " "<< q.x() << " "<< q.y() << " "<< q.z() << "\n";
         }
         file.close();
     }
@@ -319,7 +225,7 @@ namespace mypcl
         Eigen::Vector3d t0(pose_vec[0].t(0),
                             pose_vec[0].t(1),
                             pose_vec[0].t(2));
-        for (size_t i = 0; i < pose_vec.size() - 1; i++)
+        for (size_t i = 0; i < pose_vec.size(); i++)
         {
             Eigen::Vector3d t(0, 0, 0);
             Eigen::Quaterniond q(1, 0, 0, 0);
