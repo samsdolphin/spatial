@@ -91,7 +91,7 @@ namespace mypcl
         size_t cnt = 0;
         while(inFile.read((char *)&p, sizeof(p)))
         {
-            if (p._x > 0)
+            // if (p._x > 0)
             {
                 pc.points[cnt].x = p._x;
                 pc.points[cnt].y = p._y;

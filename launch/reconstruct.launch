@@ -1,6 +1,7 @@
 <launch>
   <node pkg="spatial" type="reconstruct" name="reconstruct" output="screen">
-    <param name="data_path" type="string" value="$(find spatial)/20210407_2/"/>
+    <param name="data_path" type="string" value="$(find spatial)/20210410_2/"/>
+    <param name="use_10hz" type="bool" value="false"/>
   </node>
 
   <arg name="rviz" default="true" />

@@ -14,7 +14,7 @@ Panels:
         - /PointCloud22
         - /PoseArray1
       Splitter Ratio: 0.5965417623519897
-    Tree Height: 1348
+    Tree Height: 441
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -264,7 +264,7 @@ Visualization Manager:
       Topic: /aft_mapped_path
       Unreliable: false
       Value: true
-    - Alpha: 0.10000000149011612
+    - Alpha: 0.30000001192092896
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
         Max Value: -9999
@@ -292,7 +292,7 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
-    - Alpha: 0.30000001192092896
+    - Alpha: 0.5
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
         Max Value: 107.91284942626953
@@ -365,7 +365,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 130.3189239501953
+      Distance: 82.96085357666016
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -373,18 +373,98 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: 3.73018479347229
+        Y: -6.953328609466553
+        Z: 0.0005755900638177991
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.5647963285446167
+      Pitch: 1.5697963237762451
       Target Frame: aft_mapped
-      Yaw: 4.713561058044434
-    Saved: ~
+      Yaw: 0.5653981566429138
+    Saved:
+      - Class: rviz/Orbit
+        Distance: 41.433773040771484
+        Enable Stereo Rendering:
+          Stereo Eye Separation: 0.05999999865889549
+          Stereo Focal Distance: 1
+          Swap Stereo Eyes: false
+          Value: false
+        Field of View: 0.7853981852531433
+        Focal Point:
+          X: -1.6778775453567505
+          Y: -18.34622573852539
+          Z: 0.20861707627773285
+        Focal Shape Fixed Size: true
+        Focal Shape Size: 0.05000000074505806
+        Invert Z Axis: false
+        Name: wall
+        Near Clip Distance: 0.009999999776482582
+        Pitch: 1.0947965383529663
+        Target Frame: aft_mapped
+        Yaw: 5.730400085449219
+      - Class: rviz/Orbit
+        Distance: 30.277820587158203
+        Enable Stereo Rendering:
+          Stereo Eye Separation: 0.05999999865889549
+          Stereo Focal Distance: 1
+          Swap Stereo Eyes: false
+          Value: false
+        Field of View: 0.7853981852531433
+        Focal Point:
+          X: -2.311406135559082
+          Y: -6.409303665161133
+          Z: 1.0012619495391846
+        Focal Shape Fixed Size: false
+        Focal Shape Size: 0.05000000074505806
+        Invert Z Axis: false
+        Name: pavilion
+        Near Clip Distance: 0.009999999776482582
+        Pitch: 0.4653981626033783
+        Target Frame: aft_mapped
+        Yaw: 0.22039780020713806
+      - Class: rviz/Orbit
+        Distance: 25.165340423583984
+        Enable Stereo Rendering:
+          Stereo Eye Separation: 0.05999999865889549
+          Stereo Focal Distance: 1
+          Swap Stereo Eyes: false
+          Value: false
+        Field of View: 0.7853981852531433
+        Focal Point:
+          X: 14.281758308410645
+          Y: -16.359874725341797
+          Z: 0.47580304741859436
+        Focal Shape Fixed Size: false
+        Focal Shape Size: 0.05000000074505806
+        Invert Z Axis: false
+        Name: tree
+        Near Clip Distance: 0.009999999776482582
+        Pitch: 0.32539811730384827
+        Target Frame: aft_mapped
+        Yaw: 3.005398988723755
+      - Class: rviz/Orbit
+        Distance: 81.5806884765625
+        Enable Stereo Rendering:
+          Stereo Eye Separation: 0.05999999865889549
+          Stereo Focal Distance: 1
+          Swap Stereo Eyes: false
+          Value: false
+        Field of View: 0.7853981852531433
+        Focal Point:
+          X: 0
+          Y: 0
+          Z: 0
+        Focal Shape Fixed Size: false
+        Focal Shape Size: 0.05000000074505806
+        Invert Z Axis: false
+        Name: bird
+        Near Clip Distance: 0.009999999776482582
+        Pitch: 1.5697963237762451
+        Target Frame: aft_mapped
+        Yaw: 0.5653981566429138
 Window Geometry:
   Displays:
     collapsed: true
