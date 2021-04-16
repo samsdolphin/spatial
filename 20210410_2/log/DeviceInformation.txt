@@ -1,4 +1,0 @@
-Serial Number: 00370048574D500B20383150
-Device ID: 1 (Spatial)
-Firmware Version: 6.1
-Hardware Version: 7.0
