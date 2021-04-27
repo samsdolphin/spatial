@@ -1,0 +1,7 @@
+<launch>
+  <node pkg="spatial" type="parse_livox_time" name="parse_livox_time" output="screen">
+    <param name="bag_path" type="string" value="/media/sam/T7/20210424/2021-04-24-17-09-02.bag"/>
+    <param name="write_path" type="string" value="$(find spatial)/data/"/>
+    <param name="write_time" type="bool" value="true"/>
+  </node>
+</launch>

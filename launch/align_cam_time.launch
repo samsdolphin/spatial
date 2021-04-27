@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="spatial" type="align_cam_time" name="align_cam_time" output="screen">
+    <param name="write_path" type="string" value="$(find spatial)/data/"/>
+  </node>
+</launch>

@@ -9,6 +9,9 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  cv_bridge
+  image_transport
+  sensor_msgs
   pcl_conversions
   pcl_ros
   livox_ros_driver
@@ -30,7 +33,7 @@ include_directories(
 )
 
 catkin_package(
-  CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy std_msgs
+  CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy std_msgs image_transport sensor_msgs
   DEPENDS EIGEN3 PCL OpenCV
   INCLUDE_DIRS
 )
@@ -40,3 +43,12 @@ target_link_libraries(extractor ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LI
 
 add_executable(reconstruct src/reconstruct.cpp)
 target_link_libraries(reconstruct ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS})
+
+add_executable(parse_livox_time src/parse_livox.cpp)
+target_link_libraries(parse_livox_time ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(parse_camera_time src/parse_camera.cpp)
+target_link_libraries(parse_camera_time ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(align_cam_time src/align_cam_time.cpp)
+target_link_libraries(align_cam_time ${catkin_LIBRARIES} ${PCL_LIBRARIES})

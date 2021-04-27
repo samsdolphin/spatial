@@ -58,8 +58,11 @@ void avia_callback(const livox_ros_driver::CustomMsg::ConstPtr& msg)
     ofstream outFile(filename, ios::out | ios::binary);
     for (size_t i = 0; i < pt_size; i++)
     {
-        mypcl::mypoint p(pc->points[i].x, pc->points[i].y, pc->points[i].z);
-        outFile.write((char*)&p, sizeof(p));
+        if (pc->points[i].x > 0)
+        {
+            mypcl::mypoint p(pc->points[i].x, pc->points[i].y, pc->points[i].z);
+            outFile.write((char*)&p, sizeof(p));
+        }
     }
     outFile.close();
 }

@@ -1,17 +1,22 @@
 {
-  "configurations": [
+    "configurations": [
     {
-      "browse": {
+        "browse": {
         "databaseFilename": "",
         "limitSymbolsToIncludedHeaders": true
-      },
-      "includePath": [
+        },
+        "includePath": [
         "/home/sam/catkin_ws/devel/include/**",
         "/opt/ros/noetic/include/**",
+        "${workspaceFolder}/include/**",
         "/usr/include/**"
-      ],
-      "name": "ROS"
+        ],
+        "name": "ROS",
+        "compilerPath": "/usr/bin/gcc",
+        "cStandard": "c11",
+        "cppStandard": "c++17",
+        "intelliSenseMode": "clang-x64"
     }
-  ],
-  "version": 4
+    ],
+    "version": 4
 }

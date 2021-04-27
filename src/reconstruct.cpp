@@ -117,6 +117,26 @@ int main(int argc, char** argv)
             mypcl::transform_pointcloud(*pc, *pc, t, q);
             pc_surf = mypcl::append_cloud(pc_surf, *pc);
 
+            std::ofstream file;
+            file.open(data_path + "log/process_state/pose.json", std::ofstream::app);
+            // Eigen::Quaterniond q0(pose_vec[0].q.w(),
+            //                         pose_vec[0].q.x(), 
+            //                         pose_vec[0].q.y(),
+            //                         pose_vec[0].q.z());
+            // Eigen::Vector3d t0(pose_vec[0].t(0),
+            //                     pose_vec[0].t(1),
+            //                     pose_vec[0].t(2));
+            // for (size_t i = 0; i < pose_vec.size(); i++)
+            {
+                // Eigen::Vector3d t(0, 0, 0);
+                // Eigen::Quaterniond q(1, 0, 0, 0);
+                // t << q0.inverse()*(pose_vec[i].t-t0);
+                // q = q0.inverse()*pose_vec[i].q;
+                file << t(0) << " " << t(1) << " " << t(2) << " "
+                    << q.w() << " "<< q.x() << " "<< q.y() << " "<< q.z() << "\n";
+            }
+            file.close();
+
             geometry_msgs::Pose apose;
             apose.orientation.w = q.w();
             apose.orientation.x = q.x();
@@ -153,19 +173,6 @@ int main(int argc, char** argv)
                 size_t part = pt_size/20;
                 for (size_t j = 0; j < 20; j++)
                 {
-                    pc_->points.resize(part);
-                    size_t cnt = 0;
-                    for (size_t k = j*part; k < (j+1)*part; k++)
-                    {
-                        if (pc->points[k].x > 0)
-                        {
-                            pc_->points[cnt].x = pc->points[k].x;
-                            pc_->points[cnt].y = pc->points[k].y;
-                            pc_->points[cnt].z = pc->points[k].z;
-                            cnt++;
-                        }
-                    }
-                    pc_->points.resize(cnt);
                     a = pi / 180 * (roll[i+j]);
                     b = pi / 180 * (-pitch[i+j]);
                     g = pi / 180 * (450-yaw[i+j]);
@@ -173,9 +180,39 @@ int main(int argc, char** argv)
                     Ry << cos(b), 0, sin(b), 0, 1, 0, -sin(b), 0, cos(b);
                     Rz << cos(g), -sin(g), 0, sin(g), cos(g), 0, 0, 0, 1;
                     R = Rz * Ry * Rx;
-                    Quaterniond q(R);
-                    Vector3d t(x[i+j], y[i+j], z[i+j]);
-                    mypcl::transform_pointcloud(*pc_, *pc_, t, q);
+                    Quaterniond q1(R);
+                    Vector3d t1(x[i+j], y[i+j], z[i+j]);
+
+                    a = pi / 180 * (roll[i+j+1]);
+                    b = pi / 180 * (-pitch[i+j+1]);
+                    g = pi / 180 * (450-yaw[i+j+1]);
+                    Rx << 1, 0, 0, 0, cos(a), -sin(a), 0, sin(a), cos(a);
+                    Ry << cos(b), 0, sin(b), 0, 1, 0, -sin(b), 0, cos(b);
+                    Rz << cos(g), -sin(g), 0, sin(g), cos(g), 0, 0, 0, 1;
+                    R = Rz * Ry * Rx;
+                    Quaterniond q2(R);
+                    Vector3d t2(x[i+j+1], y[i+j+1], z[i+j+1]);
+
+                    Eigen::AngleAxisd rvec;
+                    rvec.fromRotationMatrix((q1.inverse()*q2).toRotationMatrix());
+                    
+                    pc_->points.resize(part);
+                    size_t cnt = 0;
+                    for (size_t k = j*part; k < (j+1)*part; k++)
+                    {
+                        if (pc->points[k].x > 0)
+                        {
+                            double ratio = (float)(k-j*part)/(float)part*0.005;
+                            Eigen::AngleAxisd rvec_(rvec.angle()*ratio, rvec.axis());
+                            Vector3d pt(pc->points[k].x, pc->points[k].y, pc->points[k].z);
+                            pt = q1 * (rvec_.toRotationMatrix() * pt + (t2 - t1) * ratio) + t1;
+                            pc_->points[cnt].x = pt(0);
+                            pc_->points[cnt].y = pt(1);
+                            pc_->points[cnt].z = pt(2);
+                            cnt++;
+                        }
+                    }
+                    pc_->points.resize(cnt);
                     pc_surf = mypcl::append_cloud(pc_surf, *pc_);
 
                     sensor_msgs::PointCloud2 debugMsg;

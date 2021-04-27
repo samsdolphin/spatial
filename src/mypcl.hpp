@@ -169,23 +169,16 @@ namespace mypcl
         return *(std::next(dis_vec.begin(), (int)((ratio) * dis_vec.size())));
     }
 
-    void write_pose(std::vector<pose> pose_vec, std::string path)
+    void write_pose1(std::vector<pose> pose_vec, std::string path)
     {
         std::ofstream file;
         file.open(path + "pose.json", std::ofstream::trunc);
-        Eigen::Quaterniond q0(pose_vec[0].q.w(),
-                                pose_vec[0].q.x(), 
-                                pose_vec[0].q.y(),
-                                pose_vec[0].q.z());
-        Eigen::Vector3d t0(pose_vec[0].t(0),
-                            pose_vec[0].t(1),
-                            pose_vec[0].t(2));
         for (size_t i = 0; i < pose_vec.size(); i++)
         {
             Eigen::Vector3d t(0, 0, 0);
             Eigen::Quaterniond q(1, 0, 0, 0);
-            t << q0.inverse()*(pose_vec[i].t-t0);
-            q = q0.inverse()*pose_vec[i].q;
+            t << pose_vec[i].t;
+            q = pose_vec[i].q;
             if (i == pose_vec.size()-1)
                 file << t(0) << " " << t(1) << " " << t(2) << " "
                     << q.w() << " "<< q.x() << " "<< q.y() << " "<< q.z();
