@@ -122,42 +122,47 @@ void avia_callback(const livox_ros_driver::CustomMsg::ConstPtr& msg)
         }
     }
     std::sort(pc->points.begin(), pc->points.end(), time_list);
-
-    // cout<<"nsec "<<std::setprecision(9) << std::fixed << msg->header.stamp.nsec<<endl;
-    sensor_msgs::PointCloud2 avia_msg;
-    size_t part = pt_size / 10;
-    bool jump = false;
-    for (size_t i = 0; i < 10; i++)
-    {
-        size_t st = i * part;
-        size_t ed = (i+1) * part;
-        pcl::PointCloud<PointType>::Ptr pc_(new pcl::PointCloud<PointType>);
-        pc_->reserve(part);
-        for (size_t j = st; j < ed; j++)
-        {
-            pc_->points[j-st].x = pc->points[j].x;
-            pc_->points[j-st].y = pc->points[j].y;
-            pc_->points[j-st].z = pc->points[j].z;
-            pc_->points[j-st].intensity = pc->points[j].intensity;
-            pc_->points[j-st].curvature = pc->points[j].curvature; // curvature is used as time
-        }
-        uint32_t msg_nsec = uint32_t(pc->points[st].curvature) + msg->header.stamp.nsec;
-        if (msg_nsec > 1e9 && !jump)
-        {
-            msg_nsec -= 1e9;
-            msg_sec += 1;
-            jump = true;
-        }
-        else if (msg_nsec > 1e9)
-            msg_nsec -= 1e9;
-        cout<<msg_sec<<"."<<msg_nsec<<endl;
-        // cout<<"offset_time "<<int(pc->points[st].curvature)+msg->header.stamp.nsec<<endl;
+    for (size_t i = 0; i < pt_size; i++)
+        cout<<"pt "<<std::setprecision(9) << std::fixed <<pc->points[i].curvature<<endl;
+    uint32_t msg_nsec = uint32_t(pc->points[0].curvature) + msg->header.stamp.nsec;
+    cout<<"begin "<<msg_sec<<"."<<msg_nsec<<endl;
+    msg_nsec = uint32_t(pc->points[pt_size-1].curvature) + msg->header.stamp.nsec;
+    cout<<"end "<<msg_sec<<"."<<msg_nsec<<endl;
+    // cout<<"timebase "<<std::setprecision(9) << std::fixed <<msg->timebase<<endl;
+    cout<<"msg time "<<std::setprecision(9) << std::fixed << msg->header.stamp.toSec()<<endl;
+    // sensor_msgs::PointCloud2 avia_msg;
+    // size_t part = pt_size / 10;
+    // bool jump = false;
+    // for (size_t i = 0; i < 10; i++)
+    // {
+    //     size_t st = i * part;
+    //     size_t ed = (i+1) * part;
+    //     pcl::PointCloud<PointType>::Ptr pc_(new pcl::PointCloud<PointType>);
+    //     pc_->reserve(part);
+    //     for (size_t j = st; j < ed; j++)
+    //     {
+    //         pc_->points[j-st].x = pc->points[j].x;
+    //         pc_->points[j-st].y = pc->points[j].y;
+    //         pc_->points[j-st].z = pc->points[j].z;
+    //         pc_->points[j-st].intensity = pc->points[j].intensity;
+    //         pc_->points[j-st].curvature = pc->points[j].curvature; // curvature is used as time
+    //     }
+    //     uint32_t msg_nsec = uint32_t(pc->points[st].curvature) + msg->header.stamp.nsec;
+    //     if (msg_nsec > 1e9 && !jump)
+    //     {
+    //         msg_nsec -= 1e9;
+    //         msg_sec += 1;
+    //         jump = true;
+    //     }
+    //     else if (msg_nsec > 1e9)
+    //         msg_nsec -= 1e9;
+    //     cout<<msg_sec<<"."<<msg_nsec<<endl;
+    //     // cout<<"offset_time "<<int(pc->points[st].curvature)+msg->header.stamp.nsec<<endl;
         
-        pcl::toROSMsg(*pc, avia_msg);
-        avia_msg.header.frame_id = "livox_frame";
-        // avia_msg.header.stamp = cur_t;
-        pub_avia.publish(avia_msg);
-    } 
+    //     pcl::toROSMsg(*pc, avia_msg);
+    //     avia_msg.header.frame_id = "livox_frame";
+    //     pub_avia.publish(avia_msg);
+    // }
     
     // string filename = data_path + to_string(cnt) + ".dat";
     // cout<<"writing "<<cnt<<endl;
