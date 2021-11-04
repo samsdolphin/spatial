@@ -4,6 +4,9 @@ import pandas as pd
 from pyproj import Transformer
 import matplotlib.pyplot as plt
 
+# pip3 install --upgrade setuptools
+# python3 -m pip install --upgrade pip
+
 def WGS2UTM(lon,lat):
     #WGS84转UTM https://epsg.io/32650
     transformer = Transformer.from_crs("epsg:4326","epsg:32650")
@@ -26,13 +29,13 @@ y1 = y1-y1[0]
 st = 0
 ed = 0
 for i in range(0, len(time)):
-    if time[i] == 1615279634:
-        if microt[i]/1e6 > 765932/1e9:
+    if time[i] == 1632547159:
+        if microt[i]/1e6 > 899435043/1e9:
             st = i
             break
 for i in range(st, len(time)):
-    if time[i] == 1615279705:
-        if microt[i]/1e6 > 567195/1e9:
+    if time[i] == 1632547731:
+        if microt[i]/1e6 > 899813890/1e9:
             ed = i
             break
 cntt = 0
@@ -52,6 +55,8 @@ for i in range(st, ed):
         yaw2.append(yaw[i])
         cntt = 0
     cntt = cntt+1
+x2 = x2 - x2[0]
+y2 = y2 - y2[0]
 z2 = z2 - z2[0]
 roll2 = roll2-roll2[0]
 pitch2 = pitch2-pitch2[0]
@@ -68,7 +73,7 @@ with open('pitch.txt', 'w') as fp:
     fp.write('\n'.join('%f' % p for p in pitch2))
 with open('yaw.txt', 'w') as fp:
     fp.write('\n'.join('%f' % y for y in yaw2))
-# plt.plot(x1,y1)
-# plt.axis('equal')
-plt.plot(range(0,len(z2)),z2)
+plt.plot(x2,y2)
+plt.axis('equal')
+# plt.plot(range(0,len(z2)),z2)
 plt.show()

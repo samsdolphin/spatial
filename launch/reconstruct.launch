@@ -1,11 +1,12 @@
 <launch>
   <node pkg="spatial" type="reconstruct" name="reconstruct" output="screen">
-    <param name="data_path" type="string" value="$(find spatial)/20210410_2/"/>
+    <param name="data_path" type="string" value="$(find spatial)/data_permsg/"/>
     <param name="use_10hz" type="bool" value="false"/>
   </node>
 
   <arg name="rviz" default="true" />
   <group if="$(arg rviz)">
-    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find spatial)/rviz_cfg/rosbag.rviz" />
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz"
+    args="-d $(find spatial)/rviz_cfg/rosbag.rviz" />
   </group>
 </launch>

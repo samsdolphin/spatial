@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(PCL REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(PythonLibs REQUIRED)
 
 catkin_package(
   CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
@@ -30,6 +31,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
   ${CERES_INCLUDE_DIRS}
+  ${PYTHON_INCLUDE_DIRS}
 )
 
 catkin_package(
@@ -45,10 +47,10 @@ add_executable(reconstruct src/reconstruct.cpp)
 target_link_libraries(reconstruct ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS})
 
 add_executable(parse_livox_time src/parse_livox.cpp)
-target_link_libraries(parse_livox_time ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+target_link_libraries(parse_livox_time ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${PYTHON_INCLUDE_DIRS})
 
 add_executable(parse_camera_time src/parse_camera.cpp)
-target_link_libraries(parse_camera_time ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+target_link_libraries(parse_camera_time ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${PYTHON_INCLUDE_DIRS})
 
 add_executable(align_cam_time src/align_cam_time.cpp)
 target_link_libraries(align_cam_time ${catkin_LIBRARIES} ${PCL_LIBRARIES})

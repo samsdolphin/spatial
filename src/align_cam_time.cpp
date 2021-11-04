@@ -3,6 +3,7 @@
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/image_encodings.h"
 #include <image_transport/image_transport.h>
+#include <sensor_msgs/CompressedImage.h>
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/opencv.hpp>
 #include <iostream>
@@ -15,10 +16,10 @@ using namespace std;
 ros::Publisher left_pub, right_pub;
 ros::Subscriber left_sub, right_sub, livox_sub;
 
-string write_path, filename, bag_path;
+string write_path, filename, read_path, bag_name, temp_path;
 vector<double> livox_time;
 size_t cnt = 1, livox_len;
-bool left_ready = false, right_ready = false, livox_init = false;
+bool left_ready = false, right_ready = false, livox_init = false, lidar_less1 = false, compressed_img = false;
 
 void left_img_callback(const sensor_msgs::ImageConstPtr& msg)
 {
@@ -100,8 +101,10 @@ void livox_callback(const livox_ros_driver::CustomMsg::ConstPtr& msg)
 void filter_lidar()
 {
     rosbag::Bag bag_r, bag_w;
-    bag_r.open(bag_path, rosbag::bagmode::Read);
-    bag_w.open("/home/sam/lidar.bag", rosbag::bagmode::Write);
+    filename = read_path + bag_name;
+    bag_r.open(filename, rosbag::bagmode::Read);
+    filename = temp_path + "lidar.bag";
+    bag_w.open(filename, rosbag::bagmode::Write);
     vector<string> types;
     types.push_back(string("livox_ros_driver/CustomMsg"));
     rosbag::View view(bag_r, rosbag::TypeQuery(types));
@@ -110,7 +113,8 @@ void filter_lidar()
         auto msg = *(m.instantiate<livox_ros_driver::CustomMsg>());
         // double secs = msg.header.stamp.sec;
         // double nsecs = msg.header.stamp.nsec * 1e-9;
-        if (msg.header.stamp.toSec() > livox_time[0])
+        if (lidar_less1 && msg.header.stamp.toSec() >= livox_time[0] ||
+            !lidar_less1 && msg.header.stamp.toSec() > livox_time[0])
             bag_w.write("/livox/lidar", msg.header.stamp, msg);
     }
     cout<<"complete lidar"<<endl;
@@ -119,61 +123,94 @@ void filter_lidar()
 void filter_imu()
 {
     rosbag::Bag bag_r, bag_w;
-    bag_r.open(bag_path, rosbag::bagmode::Read);
-    bag_w.open("/home/sam/imu.bag", rosbag::bagmode::Write);
+    filename = read_path + bag_name;
+    bag_r.open(filename, rosbag::bagmode::Read);
+    filename = temp_path + "imu.bag";
+    bag_w.open(filename, rosbag::bagmode::Write);
     vector<string> types;
     types.push_back(string("/livox/imu"));
     rosbag::View view(bag_r, rosbag::TopicQuery(types));
     for (const rosbag::MessageInstance& m : view)
     {
         auto msg = *(m.instantiate<sensor_msgs::Imu>());
-        if (msg.header.stamp.toSec() >= livox_time[1])
+        if (lidar_less1 && msg.header.stamp.toSec() >= livox_time[0] ||
+            !lidar_less1 && msg.header.stamp.toSec() >= livox_time[1])
             bag_w.write("/livox/imu", msg.header.stamp, msg);
     }
     cout<<"complete imu"<<endl;
 }
 
-void attach_left_camera()
+void filter_left_camera()
 {
     rosbag::Bag bag_r, bag_w;
-    bag_r.open(bag_path, rosbag::bagmode::Read);
-    bag_w.open("/home/sam/left.bag", rosbag::bagmode::Write);
+    filename = read_path + bag_name;
+    bag_r.open(filename, rosbag::bagmode::Read);
+    filename = temp_path + "left.bag";
+    bag_w.open(filename, rosbag::bagmode::Write);
     vector<string> types;
-    types.push_back(string("/left_camera/image"));
+    if (compressed_img)
+        types.push_back(string("/left_camera/image/compressed"));
+    else
+        types.push_back(string("/left_camera/image"));
     rosbag::View view(bag_r, rosbag::TopicQuery(types));
-    int n = 1;
+    int n = (lidar_less1) ? 0 : 1;
     for (const rosbag::MessageInstance& m : view)
     {
-        auto msg = *(m.instantiate<sensor_msgs::Image>());
         ros::Time t;
         t.sec = uint32_t(floor(livox_time[n]));
         t.nsec = uint32_t((livox_time[n] - floor(livox_time[n])) * 1e9);
-        msg.header.stamp.sec = uint32_t(floor(livox_time[n]));
-        msg.header.stamp.nsec = uint32_t((livox_time[n] - floor(livox_time[n])) * 1e9);
-        if (n < livox_len) bag_w.write("/left_camera/image", t, msg);
+        if (compressed_img)
+        {
+            auto msg = *(m.instantiate<sensor_msgs::CompressedImage>());
+            msg.header.stamp.sec = uint32_t(floor(livox_time[n]));
+            msg.header.stamp.nsec = uint32_t((livox_time[n] - floor(livox_time[n])) * 1e9);
+            if (n < livox_len) bag_w.write("/left_camera/image/compressed", t, msg);
+        }
+        else
+        {
+            auto msg = *(m.instantiate<sensor_msgs::Image>());
+            msg.header.stamp.sec = uint32_t(floor(livox_time[n]));
+            msg.header.stamp.nsec = uint32_t((livox_time[n] - floor(livox_time[n])) * 1e9);
+            if (n < livox_len) bag_w.write("/left_camera/image", t, msg);
+        }
         n++;
     }
     cout<<"complete left camera"<<endl;
 }
 
-void attach_right_camera()
+void filter_right_camera()
 {
     rosbag::Bag bag_r, bag_w;
-    bag_r.open(bag_path, rosbag::bagmode::Read);
-    bag_w.open("/home/sam/right.bag", rosbag::bagmode::Write);
+    filename = read_path + bag_name;
+    bag_r.open(filename, rosbag::bagmode::Read);
+    filename = temp_path + "right.bag";
+    bag_w.open(filename, rosbag::bagmode::Write);
     vector<string> types;
-    types.push_back(string("/right_camera/image"));
+    if (compressed_img)
+        types.push_back(string("/right_camera/image/compressed"));
+    else
+        types.push_back(string("/right_camera/image"));
     rosbag::View view(bag_r, rosbag::TopicQuery(types));
-    int n = 1;
+    int n = (lidar_less1) ? 0 : 1;
     for (const rosbag::MessageInstance& m : view)
     {
-        auto msg = *(m.instantiate<sensor_msgs::Image>());
         ros::Time t;
         t.sec = uint32_t(floor(livox_time[n]));
         t.nsec = uint32_t((livox_time[n] - floor(livox_time[n])) * 1e9);
-        msg.header.stamp.sec = uint32_t(floor(livox_time[n]));
-        msg.header.stamp.nsec = uint32_t((livox_time[n] - floor(livox_time[n])) * 1e9);
-        if (n < livox_len) bag_w.write("/right_camera/image", t, msg);
+        if (compressed_img)
+        {
+            auto msg = *(m.instantiate<sensor_msgs::CompressedImage>());
+            msg.header.stamp.sec = uint32_t(floor(livox_time[n]));
+            msg.header.stamp.nsec = uint32_t((livox_time[n] - floor(livox_time[n])) * 1e9);
+            if (n < livox_len) bag_w.write("/right_camera/image/compressed", t, msg);
+        }
+        else
+        {
+            auto msg = *(m.instantiate<sensor_msgs::Image>());
+            msg.header.stamp.sec = uint32_t(floor(livox_time[n]));
+            msg.header.stamp.nsec = uint32_t((livox_time[n] - floor(livox_time[n])) * 1e9);
+            if (n < livox_len) bag_w.write("/right_camera/image", t, msg);
+        }
         n++;
     }
     cout<<"complete right camera"<<endl;
@@ -185,7 +222,11 @@ int main(int argc, char **argv)
     ros::NodeHandle nh("~");
 
     nh.getParam("write_path", write_path);
-    nh.getParam("bag_path", bag_path);
+    nh.getParam("read_path", read_path);
+    nh.getParam("temp_path", temp_path);
+    nh.getParam("bag_name", bag_name);
+    nh.getParam("lidar_less1", lidar_less1);
+    nh.getParam("compressed_img", compressed_img);
     
     // livox_sub = nh.subscribe("/livox/lidar", 10, livox_callback);
     // left_sub = nh.subscribe("/left_camera/image", 10, left_img_callback);
@@ -209,8 +250,8 @@ int main(int argc, char **argv)
 
     filter_lidar();
     filter_imu();
-    attach_left_camera();
-    attach_right_camera();
+    filter_left_camera();
+    filter_right_camera();
 
     ros::spin();
     return 0;

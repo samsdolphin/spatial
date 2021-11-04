@@ -1,6 +1,10 @@
 <launch>
   <node pkg="spatial" type="align_cam_time" name="align_cam_time" output="screen">
-    <param name="bag_path" type="string" value="/media/sam/T7/20210501/0.bag"/>
+    <param name="temp_path" type="string" value="/media/sam/Chunran/rosbag/factory/"/>
+    <param name="read_path" type="string" value="/media/sam/Chunran/rosbag/factory/"/>
+    <param name="bag_name" type="string" value="1104-indoor-dark.bag"/>
     <param name="write_path" type="string" value="$(find spatial)/data/"/>
+    <param name="lidar_less1" type="bool" value="false"/>
+    <param name="compressed_img" type="bool" value="true"/>
   </node>
 </launch>
